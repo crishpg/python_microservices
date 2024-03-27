@@ -22,13 +22,13 @@ def create_user():
         pika.ConnectionParameters(host='localhost',credentials=credentials, port=5672)
         )
         channel = connection.channel()
-        channel.exchange_declare('test', durable=True, exchange_type='topic')
-        channel.queue_declare(queue= 'A')
-        channel.queue_bind(exchange='test', queue='A', routing_key='A')
+        channel.exchange_declare('exchange_usuario', durable=True, exchange_type='topic')
+        channel.queue_declare(queue= 'usuario')
+        channel.queue_bind(exchange='exchange_usuario', queue='usuario', routing_key='usuario')
 
     #message= 'hello consumer fila C!!!!!'
         message = payload 
-        channel.basic_publish(exchange='test', routing_key='A', body= message)
+        channel.basic_publish(exchange='exchange_usuario', routing_key='usuario', body= message)
         channel.close()    
 
         return { "name": name,"email": email }, 201
