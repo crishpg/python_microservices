@@ -1,5 +1,7 @@
 import requests
 import os
+import json
+import pika
 from flask import Flask, jsonify, abort, request, make_response, url_for
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5000))
@@ -11,39 +13,39 @@ def create_user():
     name = data["name"]
     email = data["email"]
     try:
-        #session = Session()
-        #new_user = User(name=name)
-        #session.add(new_user)
-        #session.commit()
+        json_username = name
+        json_email =  email            
+        payload = json.dumps({"username": json_username, "email":json_email }, indent=4)
+        headers = { 'Content-Type': 'application/json'}
+        credentials = pika.PlainCredentials('username','password')
+        connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host='localhost',credentials=credentials, port=5672)
+        )
+        channel = connection.channel()
+        channel.exchange_declare('test', durable=True, exchange_type='topic')
+        channel.queue_declare(queue= 'A')
+        channel.queue_bind(exchange='test', queue='A', routing_key='A')
 
-        #return {"id": new_user.id, "name": new_user.name, "message": f"User {name} created."}, 201
+    #message= 'hello consumer fila C!!!!!'
+        message = payload 
+        channel.basic_publish(exchange='test', routing_key='A', body= message)
+        channel.close()    
+
         return { "name": name,"email": email }, 201
     except Exception as e:
         print(f"The error '{e}' occurred.")
         return {"error": "An error occurred while creating the user."}, 500
 ##fim do teste
 
+ 
+    
+#Enviando valores para o rabbitMQ
 
-#@app.route("/")
-#def home():
-#    return "Hello, this is a Flask Microservice"
-BASE_URL = "https://dummyjson.com"
-@app.route('/products', methods=['GET'])
-def get_products():
-    response = requests.get(f"{BASE_URL}/products")
-    if response.status_code != 200:
-        return jsonify({'error': response.json()['message']}), response.status_code
-    products = []
-    for product in response.json()['products']:
-        product_data = {
-            'id': product['id'],
-            'title': product['title'],
-            'brand': product['brand'],
-            'price': product['price'],
-            'description': product['description']
-        }
-        products.append(product_data)
-    return jsonify({'data': products}), 200 if products else 204
+
+# Conexão com o RabbitMQ
+
+##Fim do processo envia os dados para o rabbitmq    
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=port)
 

@@ -1,7 +1,7 @@
 import requests
 import json
-from faker import Faker
-faker = Faker()
+#from faker import Faker
+#faker = Faker()
 
 """ nome = "name:" + (faker.name())
 endereco = "email:" + ( faker.email())
@@ -15,10 +15,10 @@ print (string)
 
 
 
-url = "http://54.167.13.147:5000/api/user"
+url = "http://localhost:5000/api/user"
 
 payload = json.dumps({
-  "name": 'Cristiano Schmitt',
+  "name": "Ricardo Schmitt",
   "email": "Luis@gmail.com"
 }) 
 
